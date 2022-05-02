@@ -8,40 +8,39 @@ class GUI:
     def __init__(self):
         sg.theme("DarkRed2")
         layout_date = [
-            [sg.Text("入室時間")],
-            [self.input_text_temp("start_M"), self.text_temp("/"),
-             self.input_text_temp("start_d"), self.text_temp(" "),
-             self.input_text_temp("start_h"), self.text_temp(":"),
-             self.input_text_temp("start_m")],
-            [sg.Text("退室時間")],
-            [self.input_text_temp("end_M"), self.text_temp("/"),
-             self.input_text_temp("end_d"), self.text_temp(" "),
-             self.input_text_temp("end_h"), self.text_temp(":"),
-             self.input_text_temp("end_m")],
+            [self.text_temp("入室時間")],
+            [self.input_text_temp("start_M", self.input_text_size), self.text_temp("/"),
+             self.input_text_temp("start_d", self.input_text_size), self.text_temp(" "),
+             self.input_text_temp("start_h", self.input_text_size), self.text_temp(":"),
+             self.input_text_temp("start_m", self.input_text_size)],
+            [self.text_temp("退室時間")],
+            # 退室条件を選択できるようにする: 時間 or 人数
+            [self.input_text_temp("end_M", self.input_text_size), self.text_temp("/"),
+             self.input_text_temp("end_d", self.input_text_size), self.text_temp(" "),
+             self.input_text_temp("end_h", self.input_text_size), self.text_temp(":"),
+             self.input_text_temp("end_m", self.input_text_size)],
         ]
-        layout_url = [
-            [sg.Text("URL")],
-            [sg.InputText(size=(35, 1), key="url")],
-            [sg.Text("パスワード(あれば)")],
-            [sg.InputText(size=(35, 1), key="password")]
-        ]
-        layout_id = [
-            [sg.Text("ID(スペースキー不要)")],
-            [sg.InputText(size=(35, 1), key="id")],
-            [sg.Text("パスワード")],
-            [sg.InputText(size=(35, 1), key="password")]
+        layout_join = [
+            [self.text_temp("URL")],
+            [self.input_text_temp(size=(70, 1), key="url")],
+            [self.text_temp("ID(スペースキー不要)")],
+            [self.input_text_temp(size=(35, 1), key="id")],
+            [self.text_temp("パスワード(あれば)")],
+            [self.input_text_temp(size=(35, 1), key="password")],
+            [self.text_temp("招待リンクから参加する")],
+            [sg.Multiline(font=self.font, size=(70, 5), key="link")]
         ]
         self.layout = [
-            [sg.Frame("ミーティング時刻", layout_date)],
-            [sg.Frame("URLから入室する場合", layout_url),
-             sg.Frame("IDから入室する場合", layout_id)],
-            [sg.Checkbox("ミーティングを録画する", default=False, pad=[(0, 380), (0, 0)]),
-             sg.Button("終了", font=("", 13)), sg.Button("実行", font=("", 13))]
+            [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 10)])],
+            [sg.Frame("ミーティング情報", layout_join, font=self.font)],
+            [sg.Checkbox("ミーティングを録画する", default=False, pad=[(0, 280), (0, 0)]),
+             sg.Button("終了", font=self.font),
+             sg.Button("実行", font=self.font)]
         ]
 
-    def input_text_temp(self, key):
+    def input_text_temp(self, key, size):
         return sg.InputText(
-            size=self.input_text_size,
+            size=size,
             justification='right',
             font=self.font,
             key=key
