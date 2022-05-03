@@ -1,4 +1,6 @@
 import PySimpleGUI as sg
+import sys
+from zoom import Zoom
 
 
 class GUI:
@@ -9,39 +11,46 @@ class GUI:
         sg.theme("DarkRed2")
         layout_date = [
             [self.text_temp("入室時間")],
-            [self.input_text_temp("start_M", self.input_text_size), self.text_temp("/"),
-             self.input_text_temp("start_d", self.input_text_size), self.text_temp(" "),
-             self.input_text_temp("start_h", self.input_text_size), self.text_temp(":"),
-             self.input_text_temp("start_m", self.input_text_size)],
+            [self.time_input_text_temp("start_M"), self.text_temp("/"),
+             self.time_input_text_temp("start_d"), self.text_temp(" "),
+             self.time_input_text_temp("start_h"), self.text_temp(":"),
+             self.time_input_text_temp("start_m")],
             [self.text_temp("退室時間")],
             # 退室条件を選択できるようにする: 時間 or 人数
-            [self.input_text_temp("end_M", self.input_text_size), self.text_temp("/"),
-             self.input_text_temp("end_d", self.input_text_size), self.text_temp(" "),
-             self.input_text_temp("end_h", self.input_text_size), self.text_temp(":"),
-             self.input_text_temp("end_m", self.input_text_size)],
+            [self.time_input_text_temp("end_M"), self.text_temp("/"),
+             self.time_input_text_temp("end_d"), self.text_temp(" "),
+             self.time_input_text_temp("end_h"), self.text_temp(":"),
+             self.time_input_text_temp("end_m")],
         ]
         layout_join = [
             [self.text_temp("URL")],
-            [self.input_text_temp(size=(70, 1), key="url")],
-            [self.text_temp("ID(スペースキー不要)")],
-            [self.input_text_temp(size=(35, 1), key="id")],
-            [self.text_temp("パスワード(あれば)")],
-            [self.input_text_temp(size=(35, 1), key="password")],
+            [self.info_input_text_temp(size=(70, 1), key="url")],
+            [self.text_temp("ID")],
+            [self.info_input_text_temp(size=(35, 1), key="id")],
+            [self.text_temp("パスワード")],
+            [self.info_input_text_temp(size=(35, 1), key="password")],
             [self.text_temp("招待リンクから参加する")],
             [sg.Multiline(font=self.font, size=(70, 5), key="link")]
         ]
         self.layout = [
-            [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 10)])],
-            [sg.Frame("ミーティング情報", layout_join, font=self.font)],
-            [sg.Checkbox("ミーティングを録画する", default=False, pad=[(0, 280), (0, 0)]),
+            [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 0)])],
+            [sg.Frame("ミーティング情報", layout_join, font=self.font, pad=[(10, 10), (10, 0)])],
+            [sg.Checkbox("ミーティングを録画する", font=self.font, default=True, pad=[(10, 300), (10, 10)]),
              sg.Button("終了", font=self.font),
              sg.Button("実行", font=self.font)]
         ]
 
-    def input_text_temp(self, key, size):
+    def time_input_text_temp(self, key):
+        return sg.InputText(
+            size=(2, 1),
+            justification='right',
+            font=self.font,
+            key=key
+        )
+
+    def info_input_text_temp(self, key, size):
         return sg.InputText(
             size=size,
-            justification='right',
             font=self.font,
             key=key
         )
@@ -57,10 +66,12 @@ class GUI:
         while True:
             event, values = window.read()
             if event == "実行":
-                startEvent(event)
+                zoom = Zoom(values)
+                zoom.start()
 
             elif (event is None) or (event == "終了"):
-                endEvent(event, window)
+                window.close()
+                sys.exit()
 
 
 if __name__ == "__main__":
