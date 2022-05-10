@@ -7,6 +7,8 @@ import time
 
 
 class Zoom:
+    # zoomのpathを設定できるようにする必要がある
+    # simple guiの方でフォルダを参照して検索できるようにできるとよい
     zoom_path = r"C:\Users\MK\AppData\Roaming\Zoom\bin\Zoom.exe"
     home_img_path = "./home.png"
     join_img_path = "./join.png"
