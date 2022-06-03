@@ -64,7 +64,9 @@ class Zoom:
             s.enter((self.start_time - now).total_seconds(), 1, record_command)
         if self.auto_exit is False:
             s.enter((self.end_time - now).total_seconds(), 1, self.exit_meeting)
-            # s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
+        else:
+            # TODO : 参加者の数に応じて自動退室
+            s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
         s.run()
 
     def join_meeting(self):
@@ -94,8 +96,7 @@ class Zoom:
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
-        pgui.hotkey("alt", "f")  # recordは画面サイズ変更時に停止する
-        time.sleep(1)
+        pgui.click(x=10, y=100)
         try:
             click_button(self.exit_img_path)
             time.sleep(1)
