@@ -61,23 +61,52 @@ def features_matching(img, template):
     return int(dst_x / 3), int(dst_y / 3)
 
 
+def scale_matching(img, template):
+    """スケール対応
+    feature_matchingよりも精度が良い
+
+    Args:
+        img (numpy.ndarray): 元画像
+        template (numpy.ndarray): テンプレート画像
+
+    Returns:
+        point (int, int): 特徴点が一致した座標
+    """
+    img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    template_g = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+
+    scales = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4]
+    max_matching_value = 0
+    max_matching_point = None
+    max_matching_scale = None
+
+    for scale in scales:
+        resize = cv2.resize(template_g, (0, 0), fx=scale, fy=scale)
+        print(resize.shape)
+
+        res = cv2.matchTemplate(img_g, resize, cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        if max_val > max_matching_value:
+            max_matching_value = max_val
+            max_matching_point = max_loc
+            max_matching_scale = scale
+
+    dst_x = max_matching_point[0] + int(template_g.shape[1] * max_matching_scale / 2)
+    dst_y = max_matching_point[1] + int(template_g.shape[0] * max_matching_scale / 2)
+
+    return dst_x, dst_y
+
+
 if __name__ == '__main__':
     img_paths = ["./imgs/screen.png", "./imgs/screen.png", "./imgs/screen_meeting.png", "./imgs/screen_meeting.png", "./imgs/screen_exit.png"]
     template_paths = ["./imgs/join.png", "./imgs/home.png", "./imgs/exit.png", "./imgs/joiners.png", "./imgs/exit2.png"]
 
+    cv2.namedWindow("img", cv2.WINDOW_NORMAL)
     for img_path, template_path in zip(img_paths, template_paths):
         img = cv2.imread(img_path)
         template = cv2.imread(template_path)
-
-        cv2.imshow("img", img)
-        cv2.imshow("template", template)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-        dst_x, dst_y = features_matching(img, template)
-        print(f"{img_path} : {dst_x}, {dst_y}")
-
-        cv2.drawMarker(img, (dst_x, dst_y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
+        x, y = scale_matching(img, template)
+        cv2.drawMarker(img, (x, y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
         cv2.imshow("img", img)
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
