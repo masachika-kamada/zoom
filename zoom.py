@@ -82,6 +82,7 @@ class Zoom:
         time.sleep(10)
         pgui.hotkey("alt", "f")
         # TODO : カーソルを画面の端に寄せる
+        # カーソルが録画時に映らないように設定できたので必要ないかも
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
