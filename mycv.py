@@ -1,52 +1,29 @@
 import cv2
 import numpy as np
 
-if __name__ == '__main__':
 
-    # 対象画像を指定
-    base_image_path = "imgs/screen.png"
-    temp_image_path = "imgs/join.png"
-
-    # 画像をグレースケールで読み込み
-    gray_base_src = cv2.imread(base_image_path, 0)
-    gray_temp_src = cv2.imread(temp_image_path, 0)
-
-    # マッチング結果書き出し準備
-    # 画像をBGRカラーで読み込み
-    color_base_src = cv2.imread(base_image_path, 1)
-    color_temp_src = cv2.imread(temp_image_path, 1)
+def template_matching(img, template):
+    img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    template_g = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
     # 特徴点の検出
     type = cv2.AKAZE_create()
-    kp_01, des_01 = type.detectAndCompute(gray_base_src, None)
-    kp_02, des_02 = type.detectAndCompute(gray_temp_src, None)
+    kp_01, des_01 = type.detectAndCompute(img_g, None)
+    kp_02, des_02 = type.detectAndCompute(template_g, None)
 
     # マッチング処理
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
     matches = bf.match(des_01, des_02)
     # 距離が近い＝似ている
     matches = sorted(matches, key=lambda x: x.distance)[:10]
-    mutch_image_src = cv2.drawMatches(
-        color_base_src, kp_01, color_temp_src, kp_02, matches[:10], None, flags=2)
-
-    for i in range(len(matches)):
-        print(matches[i].distance, matches[i].imgIdx, matches[i].queryIdx, matches[i].trainIdx)
-        img_idx = matches[i].imgIdx
-        query_idx = matches[i].queryIdx
-        train_idx = matches[i].trainIdx
-        idx = query_idx
-        cv2.drawMarker(color_base_src, (int(kp_01[idx].pt[0]), int(kp_01[idx].pt[1])), (0, 255, 255), cv2.MARKER_CROSS, 30, 5)
 
     match_points = []
-
     for i in range(len(matches)):
         x, y = kp_01[matches[i].queryIdx].pt
         match_points.append(np.array([int(x), int(y)]))
 
-    print(match_points)
-
+    # 他の点との距離の和を求める
     distances = {}
-
     for i in range(len(match_points)):
         distance = 0
         for j in range(len(match_points)):
@@ -55,23 +32,26 @@ if __name__ == '__main__':
             distance += np.linalg.norm(match_points[i] - match_points[j])
         distances[i] = distance
 
-    print(distances)
-    print(sorted(distances, key=distances.get))
-
+    # 距離の和が小さい順に3点を選択し、その重心を求める
     sorted_idx = sorted(distances, key=distances.get)
-
+    dst_x = 0
+    dst_y = 0
     for i in range(3):
         print(match_points[sorted_idx[i]])
-        cv2.drawMarker(color_base_src, tuple(match_points[sorted_idx[i]]), (0, 0, 255), cv2.MARKER_CROSS, 30, 5)
-        cv2.imshow("result", color_base_src)
-        cv2.waitKey(0)
+        dst_x += match_points[sorted_idx[i]][0]
+        dst_y += match_points[sorted_idx[i]][1]
 
-    # 結果の表示
-    cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-    cv2.imshow("result", color_base_src)
+    return int(dst_x / 3), int(dst_y / 3)
 
-    # 結果の表示
-    cv2.imshow("02_result08", mutch_image_src)
 
+if __name__ == '__main__':
+    img_path = "imgs/screen.png"
+    template_path = "imgs/join.png"
+
+    img = cv2.imread(img_path)
+    template = cv2.imread(template_path)
+    x, y = template_matching(img, template)
+    cv2.drawMarker(img, (x, y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
+    cv2.imshow("img", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
