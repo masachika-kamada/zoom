@@ -6,6 +6,7 @@ import datetime
 import os
 import time
 from mycv import scale_matching
+from ocr import Tesseract
 
 
 class Zoom:
@@ -68,6 +69,7 @@ class Zoom:
             s.enter((self.end_time - now).total_seconds(), 1, self.exit_meeting)
         else:
             # TODO : 参加者の数に応じて自動退室
+            self.tesseract = Tesseract()
             s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
             s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
         s.run()
@@ -105,7 +107,10 @@ class Zoom:
         ymin = y - int(h / 2)
         # region=(左上のx座標, 左上のy座標, xの長さ, yの長さ)
         joiners_ocr_img = pgui.screenshot(region=(xmin, ymin, 50, h))
-        joiners_ocr_img.save("./joiners.png")
+        save_path = "./joiners.png"
+        joiners_ocr_img.save(save_path)
+        res = self.tesseract.ocr(save_path)
+        print(f"tesseract read : {res}")
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
