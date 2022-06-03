@@ -13,6 +13,7 @@ class Zoom:
     zoom_path = r"C:\Users\MK\AppData\Roaming\Zoom\bin\Zoom.exe"
     home_img_path = "./imgs/home.png"
     join_img_path = "./imgs/join.png"
+    joiners_img_path = "./imgs/joiners.png"
     exit_img_path = "./imgs/exit.png"
     exit2_img_path = "./imgs/exit2.png"
 
@@ -58,6 +59,7 @@ class Zoom:
         now = datetime.datetime.now()
         # 1分前に入室
         s.enter((self.start_time - now).total_seconds() - 60, 1, self.join_meeting)
+        s.enter((self.start_time - now).total_seconds() - 10, 1, self.display_n_joiners)
         if self.record:
             s.enter((self.start_time - now).total_seconds(), 1, record_command)
         if self.auto_exit is False:
@@ -80,9 +82,15 @@ class Zoom:
         time.sleep(2)
         pgui.typewrite(self.PASSWORD + "\n")
         time.sleep(10)
-        pgui.hotkey("alt", "f")
+        full_screen()
+        # pgui.hotkey("alt", "f")  # full screenにすると参加者を表示できないので
         # TODO : カーソルを画面の端に寄せる
         # カーソルが録画時に映らないように設定できたので必要ないかも
+
+    def display_n_joiners(self):
+        print("=== Display Number of Joiners ===")
+        pgui.click(x=10, y=100)
+        click_button(self.joiners_img_path)
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
@@ -99,6 +107,10 @@ class Zoom:
 
 def record_command():
     pwa.keyboard.send_keys("{VK_LWIN down}%r{VK_LWIN up}")
+
+
+def full_screen():
+    pwa.keyboard.send_keys("{VK_LWIN down}{VK_UP}{VK_LWIN up}")
 
 
 def click_button(img_path):
