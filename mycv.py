@@ -2,14 +2,31 @@ import cv2
 import numpy as np
 
 
-def template_matching(img, template):
+def features_matching(img, template):
+    """特徴点対応
+    templateのサイズが小さすぎると、マッチングでエラーになる
+    グレースケールに変更した時に特徴点が少ないと良い結果が得られない
+
+    Args:
+        img (numpy.ndarray): 元画像
+        template (numpy.ndarray): テンプレート画像
+
+    Returns:
+        point (int, int): 特徴点が一致した座標
+    """
     img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     template_g = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
+    template_g = cv2.resize(template_g, (100, 100))
+
     # 特徴点の検出
-    type = cv2.AKAZE_create()
-    kp_01, des_01 = type.detectAndCompute(img_g, None)
-    kp_02, des_02 = type.detectAndCompute(template_g, None)
+    akaze = cv2.AKAZE_create()
+    kp_01, des_01 = akaze.detectAndCompute(img_g, None)
+    kp_02, des_02 = akaze.detectAndCompute(template_g, None)
+
+    # print(des_01.shape)
+    # print(type(des_02))
+    # print(des_02)
 
     # マッチング処理
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
@@ -45,13 +62,22 @@ def template_matching(img, template):
 
 
 if __name__ == '__main__':
-    img_path = "imgs/screen.png"
-    template_path = "imgs/join.png"
+    img_paths = ["./imgs/screen.png", "./imgs/screen.png", "./imgs/screen_meeting.png", "./imgs/screen_meeting.png", "./imgs/screen_exit.png"]
+    template_paths = ["./imgs/join.png", "./imgs/home.png", "./imgs/exit.png", "./imgs/joiners.png", "./imgs/exit2.png"]
 
-    img = cv2.imread(img_path)
-    template = cv2.imread(template_path)
-    x, y = template_matching(img, template)
-    cv2.drawMarker(img, (x, y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
-    cv2.imshow("img", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    for img_path, template_path in zip(img_paths, template_paths):
+        img = cv2.imread(img_path)
+        template = cv2.imread(template_path)
+
+        cv2.imshow("img", img)
+        cv2.imshow("template", template)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        dst_x, dst_y = features_matching(img, template)
+        print(f"{img_path} : {dst_x}, {dst_y}")
+
+        cv2.drawMarker(img, (dst_x, dst_y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
+        cv2.imshow("img", img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
