@@ -15,14 +15,14 @@ def features_matching(img, template):
         point (int, int): 特徴点が一致した座標
     """
     img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    template_g = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
-    template_g = cv2.resize(template_g, (100, 100))
+    template = cv2.resize(template, (100, 100))
 
     # 特徴点の検出
     akaze = cv2.AKAZE_create()
     kp_01, des_01 = akaze.detectAndCompute(img_g, None)
-    kp_02, des_02 = akaze.detectAndCompute(template_g, None)
+    kp_02, des_02 = akaze.detectAndCompute(template, None)
 
     # print(des_01.shape)
     # print(type(des_02))
@@ -61,19 +61,20 @@ def features_matching(img, template):
     return int(dst_x / 3), int(dst_y / 3)
 
 
-def scale_matching(img, template):
+def scale_matching(img, template_path):
     """スケール対応
     feature_matchingよりも精度が良い
 
     Args:
-        img (numpy.ndarray): 元画像
-        template (numpy.ndarray): テンプレート画像
+        img (PIL.Image.Image): スクリーンショット
+        template_path (path): テンプレート画像のパス
 
     Returns:
         point (int, int): 特徴点が一致した座標
     """
+    img = pil2cv(img)
     img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    template_g = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    template = cv2.imread(template_path, cv2.IMREAD_GRAYSCALE)
 
     scales = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4]
     max_matching_value = 0
@@ -81,7 +82,7 @@ def scale_matching(img, template):
     max_matching_scale = None
 
     for scale in scales:
-        resize = cv2.resize(template_g, (0, 0), fx=scale, fy=scale)
+        resize = cv2.resize(template, (0, 0), fx=scale, fy=scale)
 
         res = cv2.matchTemplate(img_g, resize, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
@@ -90,10 +91,15 @@ def scale_matching(img, template):
             max_matching_point = max_loc
             max_matching_scale = scale
 
-    dst_x = max_matching_point[0] + int(template_g.shape[1] * max_matching_scale / 2)
-    dst_y = max_matching_point[1] + int(template_g.shape[0] * max_matching_scale / 2)
+    dst_x = max_matching_point[0] + int(template.shape[1] * max_matching_scale / 2)
+    dst_y = max_matching_point[1] + int(template.shape[0] * max_matching_scale / 2)
 
     return dst_x, dst_y
+
+
+def pil2cv(img):
+    img = np.array(img, dtype=np.uint8)
+    return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
 
 if __name__ == "__main__":

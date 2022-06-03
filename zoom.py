@@ -4,16 +4,17 @@ import sched
 import datetime
 import os
 import time
+from mycv import scale_matching
 
 
 class Zoom:
     # zoomのpathを設定できるようにする必要がある
     # simple guiの方でフォルダを参照して検索できるようにできるとよい
     zoom_path = r"C:\Users\MK\AppData\Roaming\Zoom\bin\Zoom.exe"
-    home_img_path = "./home.png"
-    join_img_path = "./join.png"
-    exit_img_path = "./exit.png"
-    exit2_img_path = "./exit2.png"
+    home_img_path = "./imgs/home.png"
+    join_img_path = "./imgs/join.png"
+    exit_img_path = "./imgs/exit.png"
+    exit2_img_path = "./imgs/exit2.png"
 
     def __init__(self, data):
         if data["link"] is not None:
@@ -100,8 +101,8 @@ def record_command():
 
 
 def click_button(img_path):
-    p = pgui.locateOnScreen(img_path, confidence=0.8)
-    x, y = pgui.center(p)
+    screenshot = pgui.screenshot()
+    x, y = scale_matching(screenshot, img_path)
     pgui.doubleClick(x, y)
 
 
