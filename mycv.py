@@ -82,7 +82,6 @@ def scale_matching(img, template):
 
     for scale in scales:
         resize = cv2.resize(template_g, (0, 0), fx=scale, fy=scale)
-        print(resize.shape)
 
         res = cv2.matchTemplate(img_g, resize, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
@@ -97,16 +96,20 @@ def scale_matching(img, template):
     return dst_x, dst_y
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     img_paths = ["./imgs/screen.png", "./imgs/screen.png", "./imgs/screen_meeting.png", "./imgs/screen_meeting.png", "./imgs/screen_exit.png"]
     template_paths = ["./imgs/join.png", "./imgs/home.png", "./imgs/exit.png", "./imgs/joiners.png", "./imgs/exit2.png"]
 
     cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+
+    scales = [0.75, 0.86, 0.93, 1.05, 1.18, 1.23]
     for img_path, template_path in zip(img_paths, template_paths):
         img = cv2.imread(img_path)
         template = cv2.imread(template_path)
-        x, y = scale_matching(img, template)
-        cv2.drawMarker(img, (x, y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
-        cv2.imshow("img", img)
-        cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        for scale in scales:
+            img_resize = cv2.resize(img, (0, 0), fx=scale, fy=scale)
+            x, y = scale_matching(img_resize, template)
+            cv2.drawMarker(img_resize, (x, y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
+            cv2.imshow("img", img_resize)
+            cv2.waitKey(0)
+            # cv2.destroyAllWindows()
