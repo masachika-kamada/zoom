@@ -1,3 +1,4 @@
+import cv2
 import pyautogui as pgui
 import pywinauto as pwa
 import sched
@@ -5,6 +6,7 @@ import datetime
 import os
 import time
 from mycv import scale_matching
+from ocr import Tesseract
 
 
 class Zoom:
@@ -13,6 +15,8 @@ class Zoom:
     zoom_path = r"C:\Users\MK\AppData\Roaming\Zoom\bin\Zoom.exe"
     home_img_path = "./imgs/home.png"
     join_img_path = "./imgs/join.png"
+    joiners_img_path = "./imgs/joiners.png"
+    n_joiners_img_path = "./imgs/n_joiners.png"
     exit_img_path = "./imgs/exit.png"
     exit2_img_path = "./imgs/exit2.png"
 
@@ -58,11 +62,16 @@ class Zoom:
         now = datetime.datetime.now()
         # 1分前に入室
         s.enter((self.start_time - now).total_seconds() - 60, 1, self.join_meeting)
+        s.enter((self.start_time - now).total_seconds() - 10, 1, self.display_n_joiners)
         if self.record:
             s.enter((self.start_time - now).total_seconds(), 1, record_command)
         if self.auto_exit is False:
             s.enter((self.end_time - now).total_seconds(), 1, self.exit_meeting)
-            # s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
+        else:
+            # TODO : 参加者の数に応じて自動退室
+            self.tesseract = Tesseract()
+            s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+            s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
         s.run()
 
     def join_meeting(self):
@@ -80,14 +89,32 @@ class Zoom:
         time.sleep(2)
         pgui.typewrite(self.PASSWORD + "\n")
         time.sleep(10)
-        pgui.hotkey("alt", "f")
+        full_screen()
+        # pgui.hotkey("alt", "f")  # full screenにすると参加者を表示できないので
         # TODO : カーソルを画面の端に寄せる
         # カーソルが録画時に映らないように設定できたので必要ないかも
 
+    def display_n_joiners(self):
+        print("=== Display Number of Joiners ===")
+        pgui.click(x=10, y=100)
+        click_button(self.joiners_img_path)
+
+    def watch_joiners(self):
+        screenshot = pgui.screenshot()
+        x, y = scale_matching(screenshot, self.n_joiners_img_path)
+        h, w = cv2.imread(self.n_joiners_img_path).shape[:2]
+        xmin = x + int(w / 2)
+        ymin = y - int(h / 2)
+        # region=(左上のx座標, 左上のy座標, xの長さ, yの長さ)
+        joiners_ocr_img = pgui.screenshot(region=(xmin, ymin, 50, h))
+        save_path = "./joiners.png"
+        joiners_ocr_img.save(save_path)
+        res = self.tesseract.ocr(save_path)
+        print(f"tesseract read : {res}")
+
     def exit_meeting(self):
         print("=== Exit Meeting ===")
-        pgui.hotkey("alt", "f")  # recordは画面サイズ変更時に停止する
-        time.sleep(1)
+        pgui.click(x=10, y=100)
         try:
             click_button(self.exit_img_path)
             time.sleep(1)
@@ -99,6 +126,10 @@ class Zoom:
 
 def record_command():
     pwa.keyboard.send_keys("{VK_LWIN down}%r{VK_LWIN up}")
+
+
+def full_screen():
+    pwa.keyboard.send_keys("{VK_LWIN down}{VK_UP}{VK_LWIN up}")
 
 
 def click_button(img_path):
