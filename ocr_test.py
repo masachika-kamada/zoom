@@ -48,7 +48,7 @@ class Tesseract:
         cv2.rectangle(img, (xmin, 0), (xmin + kakko_width, img.shape[0]), white, -1)
         cv2.rectangle(img, (xmax - kakko_width, 0), (xmax, img.shape[0]), white, -1)
         cv2.imshow("img", img)
-        cv2.waitKey(0)
+        # cv2.waitKey(0)
 
         # img = cv2pil(img)
 
@@ -56,20 +56,49 @@ class Tesseract:
             result = self.tool.image_to_string(
                 Image.fromarray(img),
                 lang="eng",
-                builder=pyocr.builders.TextBuilder(tesseract_layout=6)
+                builder=pyocr.builders.TextBuilder(tesseract_layout=8)
             )
             print("text", result)
-            return int(re.sub(r"\D", "", result))
+            try:
+                return int(re.sub(r"\D", "", result))
+            except ValueError:
+                cv2.waitKey(0)
+                return 0
         except cv2.error:
             print("cv2.error")
             return 0
 
 
-def main():
+def movie():
+    from mycv import scale_matching
+    capture = cv2.VideoCapture("./movies/geek-camp.mp4")
+    save_path = "./joiners.png"
+    tesseract = Tesseract()
+    while(True):
+        ret, frame = capture.read()
+
+        x, y = scale_matching(cv2pil(frame), "./imgs/n_joiners.png")
+        h, w = cv2.imread("./imgs/n_joiners.png").shape[:2]
+        xmin = x + int(w / 2)
+        ymin = y - int(h / 2)
+        dst = frame[ymin:ymin + h, xmin:xmin + 50]
+        cv2.imwrite(save_path, dst)
+        res = tesseract.ocr(save_path)
+        print(res)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    capture.release()
+    cv2.destroyAllWindows()
+
+
+def one_shot():
     tesseract = Tesseract()
     res = tesseract.ocr("./joiners.png")
     print(res)
 
 
 if __name__ == "__main__":
-    main()
+    # movie()
+    one_shot()
