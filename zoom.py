@@ -5,6 +5,7 @@ import sched
 import datetime
 import os
 import time
+import playsound
 from mycv import scale_matching
 from ocr import Tesseract
 
@@ -56,11 +57,11 @@ class Zoom:
                 hour=int(data["end_h"]),
                 minute=int(data["end_m"])
             )
-        self.moderator = False
-        if data[1]:
-            self.moderator = True
-        self.record = False
+        self.set_moderator = False
         if data[0]:
+            self.set_moderator = True
+        self.record = False
+        if data[1]:
             self.record = True
 
     def start(self):
@@ -76,9 +77,10 @@ class Zoom:
         else:
             # TODO : 参加者の数に応じて自動退室
             self.tesseract = Tesseract()
-            s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
-        if self.moderator is True:
+            # s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+        if self.set_moderator is True:
             s.enter((self.start_time - now).total_seconds() - 10, 1, self.share_audio)
+            s.enter((self.start_time - now).total_seconds(), 1, self.moderator)
         s.run()
 
     def join_meeting(self):
@@ -106,15 +108,6 @@ class Zoom:
         pgui.click(x=10, y=100)
         click_button(self.joiners_img_path)
 
-    def share_audio(self):
-        print("=== Share Audio ===")
-        pgui.click(x=10, y=100)
-        click_button(self.screen_share_img_path)
-        time.sleep(1)
-        click_button(self.choice_app_img_path)
-        time.sleep(1)
-        click_button(self.computer_audio_img_path)
-
     def watch_joiners(self):
         screenshot = pgui.screenshot()
         x, y = scale_matching(screenshot, self.n_joiners_img_path)
@@ -136,6 +129,20 @@ class Zoom:
             elif max_joiners < res:
                 max_joiners = res
             time.sleep(1)
+
+    def share_audio(self):
+        print("=== Share Audio ===")
+        pgui.click(x=10, y=100)
+        click_button(self.screen_share_img_path)
+        time.sleep(1)
+        click_button(self.choice_app_img_path)
+        time.sleep(1)
+        click_button(self.computer_audio_img_path)
+
+    def moderator(self):
+        print("=== Moderator ===")
+        print(os.getcwd())
+        playsound.playsound("test.mp3")
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")

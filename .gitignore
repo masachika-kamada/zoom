@@ -1,5 +1,6 @@
 .vscode/
 *.png
 *.mp4
+*.mp3
 __pycache__/
 sample/
