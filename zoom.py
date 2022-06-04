@@ -17,6 +17,9 @@ class Zoom:
     join_img_path = "./imgs/join.png"
     joiners_img_path = "./imgs/joiners.png"
     n_joiners_img_path = "./imgs/n_joiners.png"
+    screen_share_img_path = "./imgs/screen_share.png"
+    choice_app_img_path = "./imgs/choice_app.png"
+    computer_audio_img_path = "./imgs/computer_audio.png"
     exit_img_path = "./imgs/exit.png"
     exit2_img_path = "./imgs/exit2.png"
 
@@ -53,8 +56,11 @@ class Zoom:
                 hour=int(data["end_h"]),
                 minute=int(data["end_m"])
             )
-        self.record = False
+        self.set_moderator = False
         if data[0]:
+            self.set_moderator = True
+        self.record = False
+        if data[1]:
             self.record = True
 
     def start(self):
@@ -62,7 +68,7 @@ class Zoom:
         now = datetime.datetime.now()
         # 1分前に入室
         s.enter((self.start_time - now).total_seconds() - 60, 1, self.join_meeting)
-        s.enter((self.start_time - now).total_seconds() - 10, 1, self.display_joiners_tab)
+        s.enter((self.start_time - now).total_seconds() - 20, 1, self.display_joiners_tab)
         if self.record:
             s.enter((self.start_time - now).total_seconds(), 1, record_command)
         if self.auto_exit is False:
@@ -70,8 +76,10 @@ class Zoom:
         else:
             # TODO : 参加者の数に応じて自動退室
             self.tesseract = Tesseract()
-            s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
-            # s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
+            # s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+        if self.set_moderator is True:
+            s.enter((self.start_time - now).total_seconds() - 10, 1, self.share_audio)
+            s.enter((self.start_time - now).total_seconds(), 1, self.moderator)
         s.run()
 
     def join_meeting(self):
@@ -120,6 +128,20 @@ class Zoom:
             elif max_joiners < res:
                 max_joiners = res
             time.sleep(1)
+
+    def share_audio(self):
+        print("=== Share Audio ===")
+        pgui.click(x=10, y=100)
+        click_button(self.screen_share_img_path)
+        time.sleep(1)
+        click_button(self.choice_app_img_path)
+        time.sleep(1)
+        click_button(self.computer_audio_img_path)
+
+    def moderator(self):
+        print("=== Moderator ===")
+        audio_file = "test.wav"
+        os.system(audio_file)
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
