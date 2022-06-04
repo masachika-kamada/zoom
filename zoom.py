@@ -66,7 +66,7 @@ class Zoom:
         now = datetime.datetime.now()
         # 1分前に入室
         s.enter((self.start_time - now).total_seconds() - 60, 1, self.join_meeting)
-        s.enter((self.start_time - now).total_seconds() - 10, 1, self.display_joiners_tab)
+        s.enter((self.start_time - now).total_seconds() - 20, 1, self.display_joiners_tab)
         if self.record:
             s.enter((self.start_time - now).total_seconds(), 1, record_command)
         if self.auto_exit is False:
@@ -74,8 +74,8 @@ class Zoom:
         else:
             # TODO : 参加者の数に応じて自動退室
             self.tesseract = Tesseract()
-            s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
-            # s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
+            # s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+            s.enter((self.start_time - now).total_seconds() - 10, 1, self.share_audio)
         s.run()
 
     def join_meeting(self):
@@ -111,8 +111,6 @@ class Zoom:
         click_button(self.choice_app_img_path)
         time.sleep(1)
         click_button(self.computer_audio_img_path)
-        time.sleep(1)
-        click_button(self.share_img_path)
 
     def watch_joiners(self):
         screenshot = pgui.screenshot()
