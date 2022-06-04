@@ -1,4 +1,5 @@
 .vscode/
 *.png
+*.mp4
 __pycache__/
 sample/
