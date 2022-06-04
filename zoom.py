@@ -74,7 +74,6 @@ class Zoom:
         if self.auto_exit is False:
             s.enter((self.end_time - now).total_seconds(), 1, self.exit_meeting)
         else:
-            # TODO : 参加者の数に応じて自動退室
             self.tesseract = Tesseract()
             # s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
         if self.set_moderator is True:
@@ -98,9 +97,6 @@ class Zoom:
         pgui.typewrite(self.PASSWORD + "\n")
         time.sleep(10)
         full_screen()
-        # pgui.hotkey("alt", "f")  # full screenにすると参加者を表示できないので
-        # TODO : カーソルを画面の端に寄せる
-        # カーソルが録画時に映らないように設定できたので必要ないかも
 
     def display_joiners_tab(self):
         print("=== Display Number of Joiners ===")
