@@ -113,12 +113,12 @@ class Zoom:
             joiners_ocr_img.save(save_path)
             res = self.tesseract.ocr(save_path)
             print(f"tesseract read : {res}")
-            if max_joiners < res:
-                max_joiners = res
-            # elif max_joiners / 2 >= res:
-            elif max_joiners - 1 >= res:
+            # if max_joiners / 2 >= res:
+            if res is None or max_joiners - 1 >= res:
                 self.exit_meeting()
                 break
+            elif max_joiners < res:
+                max_joiners = res
             time.sleep(1)
 
     def exit_meeting(self):
@@ -144,6 +144,9 @@ def full_screen():
 def click_button(img_path):
     screenshot = pgui.screenshot()
     x, y = scale_matching(screenshot, img_path)
+    if x is None or y is None:
+        print("Matching failed")
+        exit()
     pgui.doubleClick(x, y)
 
 
