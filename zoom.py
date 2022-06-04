@@ -117,7 +117,6 @@ class Zoom:
                 max_joiners = res
             # elif max_joiners / 2 >= res:
             elif max_joiners - 1 >= res:
-                print("=== Exit Meeting ===")
                 self.exit_meeting()
                 break
             time.sleep(1)

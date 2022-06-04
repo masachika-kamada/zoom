@@ -32,7 +32,7 @@ class Tesseract:
             try:
                 return int(re.sub(r"\D", "", result))
             except ValueError:
-                cv2.waitKey(0)
+                print("ValueError")
                 return 0
         except cv2.error:
             print("cv2.error")
