@@ -32,6 +32,9 @@ def scale_matching(img, template_path):
             max_matching_point = max_loc
             max_matching_scale = scale
 
+    if max_matching_value < 0.8:
+        return None, None
+
     dst_x = max_matching_point[0] + int(template.shape[1] * max_matching_scale / 2)
     dst_y = max_matching_point[1] + int(template.shape[0] * max_matching_scale / 2)
 

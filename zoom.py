@@ -144,6 +144,9 @@ def full_screen():
 def click_button(img_path):
     screenshot = pgui.screenshot()
     x, y = scale_matching(screenshot, img_path)
+    if x is None or y is None:
+        print("Matching failed")
+        exit()
     pgui.doubleClick(x, y)
 
 
