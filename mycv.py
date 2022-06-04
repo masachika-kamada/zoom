@@ -2,65 +2,6 @@ import cv2
 import numpy as np
 
 
-def features_matching(img, template):
-    """特徴点対応
-    templateのサイズが小さすぎると、マッチングでエラーになる
-    グレースケールに変更した時に特徴点が少ないと良い結果が得られない
-
-    Args:
-        img (numpy.ndarray): 元画像
-        template (numpy.ndarray): テンプレート画像
-
-    Returns:
-        point (int, int): 特徴点が一致した座標
-    """
-    img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-
-    template = cv2.resize(template, (100, 100))
-
-    # 特徴点の検出
-    akaze = cv2.AKAZE_create()
-    kp_01, des_01 = akaze.detectAndCompute(img_g, None)
-    kp_02, des_02 = akaze.detectAndCompute(template, None)
-
-    # print(des_01.shape)
-    # print(type(des_02))
-    # print(des_02)
-
-    # マッチング処理
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING)
-    matches = bf.match(des_01, des_02)
-    # 距離が近い＝似ている
-    matches = sorted(matches, key=lambda x: x.distance)[:10]
-
-    match_points = []
-    for i in range(len(matches)):
-        x, y = kp_01[matches[i].queryIdx].pt
-        match_points.append(np.array([int(x), int(y)]))
-
-    # 他の点との距離の和を求める
-    distances = {}
-    for i in range(len(match_points)):
-        distance = 0
-        for j in range(len(match_points)):
-            if i == j:
-                continue
-            distance += np.linalg.norm(match_points[i] - match_points[j])
-        distances[i] = distance
-
-    # 距離の和が小さい順に3点を選択し、その重心を求める
-    sorted_idx = sorted(distances, key=distances.get)
-    dst_x = 0
-    dst_y = 0
-    for i in range(3):
-        print(match_points[sorted_idx[i]])
-        dst_x += match_points[sorted_idx[i]][0]
-        dst_y += match_points[sorted_idx[i]][1]
-
-    return int(dst_x / 3), int(dst_y / 3)
-
-
 def scale_matching(img, template_path):
     """スケール対応
     feature_matchingよりも精度が良い
