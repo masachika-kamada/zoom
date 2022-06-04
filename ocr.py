@@ -19,6 +19,8 @@ class Tesseract:
             result (int): OCR結果
         """
         img = make_ocr_image(img_path)
+        if img is None:
+            return None
 
         try:
             # tesseract_layoutは下記のリンクを参照
@@ -45,6 +47,8 @@ def make_ocr_image(img_path):
     img = cv2.resize(img, (0, 0), fx=2, fy=2)
 
     cnts, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if len(cnts) <= 1:
+        return None
     margin = 3
     xmin = min([cv2.boundingRect(cnt)[0] for cnt in cnts[1:]]) - margin
     xmax = max([cv2.boundingRect(cnt)[0] + cv2.boundingRect(cnt)[2] for cnt in cnts[1:]]) + margin
