@@ -20,7 +20,6 @@ class Zoom:
     screen_share_img_path = "./imgs/screen_share.png"
     choice_app_img_path = "./imgs/choice_app.png"
     computer_audio_img_path = "./imgs/computer_audio.png"
-    share_img_path = "./imgs/share.png"
     exit_img_path = "./imgs/exit.png"
     exit2_img_path = "./imgs/exit2.png"
 
@@ -57,6 +56,9 @@ class Zoom:
                 hour=int(data["end_h"]),
                 minute=int(data["end_m"])
             )
+        self.moderator = False
+        if data[1]:
+            self.moderator = True
         self.record = False
         if data[0]:
             self.record = True
@@ -74,7 +76,8 @@ class Zoom:
         else:
             # TODO : 参加者の数に応じて自動退室
             self.tesseract = Tesseract()
-            # s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+            s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+        if self.moderator is True:
             s.enter((self.start_time - now).total_seconds() - 10, 1, self.share_audio)
         s.run()
 

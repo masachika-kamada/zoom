@@ -35,6 +35,7 @@ class GUI:
         self.layout = [
             [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 0)])],
             [sg.Frame("ミーティング情報", layout_join, font=self.font, pad=[(10, 10), (10, 0)])],
+            [sg.Checkbox("モデレーター機能を有効にする", font=self.font, default=False, pad=[(10, 10), (10, 10)])],
             [sg.Checkbox("ミーティングを録画する", font=self.font, default=False, pad=[(10, 300), (10, 10)]),
              sg.Button("終了", font=self.font),
              sg.Button("実行", font=self.font)]
