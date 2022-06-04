@@ -5,7 +5,6 @@ import sched
 import datetime
 import os
 import time
-import playsound
 from mycv import scale_matching
 from ocr import Tesseract
 
@@ -141,8 +140,8 @@ class Zoom:
 
     def moderator(self):
         print("=== Moderator ===")
-        print(os.getcwd())
-        playsound.playsound("test.mp3")
+        audio_file = "test.wav"
+        os.system(audio_file)
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
