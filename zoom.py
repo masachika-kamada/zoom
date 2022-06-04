@@ -17,6 +17,10 @@ class Zoom:
     join_img_path = "./imgs/join.png"
     joiners_img_path = "./imgs/joiners.png"
     n_joiners_img_path = "./imgs/n_joiners.png"
+    screen_share_img_path = "./imgs/screen_share.png"
+    choice_app_img_path = "./imgs/choice_app.png"
+    computer_audio_img_path = "./imgs/computer_audio.png"
+    share_img_path = "./imgs/share.png"
     exit_img_path = "./imgs/exit.png"
     exit2_img_path = "./imgs/exit2.png"
 
@@ -98,6 +102,17 @@ class Zoom:
         print("=== Display Number of Joiners ===")
         pgui.click(x=10, y=100)
         click_button(self.joiners_img_path)
+
+    def share_audio(self):
+        print("=== Share Audio ===")
+        pgui.click(x=10, y=100)
+        click_button(self.screen_share_img_path)
+        time.sleep(1)
+        click_button(self.choice_app_img_path)
+        time.sleep(1)
+        click_button(self.computer_audio_img_path)
+        time.sleep(1)
+        click_button(self.share_img_path)
 
     def watch_joiners(self):
         screenshot = pgui.screenshot()
