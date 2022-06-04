@@ -62,7 +62,7 @@ class Zoom:
         now = datetime.datetime.now()
         # 1分前に入室
         s.enter((self.start_time - now).total_seconds() - 60, 1, self.join_meeting)
-        s.enter((self.start_time - now).total_seconds() - 10, 1, self.display_n_joiners)
+        s.enter((self.start_time - now).total_seconds() - 10, 1, self.display_joiners_tab)
         if self.record:
             s.enter((self.start_time - now).total_seconds(), 1, record_command)
         if self.auto_exit is False:
@@ -71,7 +71,7 @@ class Zoom:
             # TODO : 参加者の数に応じて自動退室
             self.tesseract = Tesseract()
             s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
-            s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
+            # s.enter((self.start_time - now).total_seconds() + 10, 1, self.exit_meeting)
         s.run()
 
     def join_meeting(self):
@@ -94,7 +94,7 @@ class Zoom:
         # TODO : カーソルを画面の端に寄せる
         # カーソルが録画時に映らないように設定できたので必要ないかも
 
-    def display_n_joiners(self):
+    def display_joiners_tab(self):
         print("=== Display Number of Joiners ===")
         pgui.click(x=10, y=100)
         click_button(self.joiners_img_path)
@@ -105,12 +105,22 @@ class Zoom:
         h, w = cv2.imread(self.n_joiners_img_path).shape[:2]
         xmin = x + int(w / 2)
         ymin = y - int(h / 2)
-        # region=(左上のx座標, 左上のy座標, xの長さ, yの長さ)
-        joiners_ocr_img = pgui.screenshot(region=(xmin, ymin, 50, h))
-        save_path = "./joiners.png"
-        joiners_ocr_img.save(save_path)
-        res = self.tesseract.ocr(save_path)
-        print(f"tesseract read : {res}")
+        max_joiners = 0
+        while True:
+            # region=(左上のx座標, 左上のy座標, xの長さ, yの長さ)
+            joiners_ocr_img = pgui.screenshot(region=(xmin, ymin, 50, h))
+            save_path = "./joiners.png"
+            joiners_ocr_img.save(save_path)
+            res = self.tesseract.ocr(save_path)
+            print(f"tesseract read : {res}")
+            if max_joiners < res:
+                max_joiners = res
+            # elif max_joiners / 2 >= res:
+            elif max_joiners - 1 >= res:
+                print("=== Exit Meeting ===")
+                self.exit_meeting()
+                break
+            time.sleep(1)
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
