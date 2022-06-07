@@ -20,6 +20,7 @@ class Zoom:
     screen_share_img_path = "./imgs/screen_share.png"
     choice_app_img_path = "./imgs/choice_app.png"
     computer_audio_img_path = "./imgs/computer_audio.png"
+    info_icon_img_path = "./imgs/info_icon.png"
     exit_img_path = "./imgs/exit.png"
     exit2_img_path = "./imgs/exit2.png"
 
@@ -75,9 +76,9 @@ class Zoom:
             s.enter((self.end_time - now).total_seconds(), 1, self.exit_meeting)
         else:
             self.tesseract = Tesseract()
-            # s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+            s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
         if self.set_moderator is True:
-            s.enter((self.start_time - now).total_seconds() - 10, 1, self.share_audio)
+            # s.enter((self.start_time - now).total_seconds() - 10, 1, self.share_audio)
             s.enter((self.start_time - now).total_seconds(), 1, self.moderator)
         s.run()
 
@@ -127,17 +128,44 @@ class Zoom:
 
     def share_audio(self):
         print("=== Share Audio ===")
-        pgui.click(x=10, y=100)
+        # pgui.click(x=10, y=100)
+        # time.sleep(0.2)
         click_button(self.screen_share_img_path)
-        time.sleep(1)
+        time.sleep(0.5)
         click_button(self.choice_app_img_path)
-        time.sleep(1)
+        time.sleep(0.5)
         click_button(self.computer_audio_img_path)
 
     def moderator(self):
         print("=== Moderator ===")
-        audio_file = "test.wav"
-        os.system(audio_file)
+        # audio_file = "test.wav"
+        # os.system(audio_file)
+        x_origin, y_origin = None, None
+        xmin = 0
+        last_share_state = False
+        while True:
+            pgui.click(x=10, y=100)
+            if x_origin is None:
+                screenshot = pgui.screenshot()
+                x_origin, y_origin = scale_matching(screenshot, self.info_icon_img_path)
+                xmin = min(0, x_origin - 30)
+            else:
+                screenshot = pgui.screenshot(region=(xmin, 0, 60, 400))
+                x, y = scale_matching(screenshot, self.info_icon_img_path)
+                print(x, y)
+                if abs(y - y_origin) > 10:
+                    print("発表者が画面共有中")
+                    last_share_state = True
+                else:
+                    if last_share_state is True:
+                        print("ここでアナウンス")
+                        self.share_audio()
+                        audio_file = "test.wav"
+                        os.system(audio_file)
+                        # break
+                        exit()
+                    print("発表者が画面共有中ではない")
+            time.sleep(1)
 
     def exit_meeting(self):
         print("=== Exit Meeting ===")
