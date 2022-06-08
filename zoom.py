@@ -138,33 +138,25 @@ class Zoom:
 
     def moderator(self):
         print("=== Moderator ===")
-        # audio_file = "test.wav"
-        # os.system(audio_file)
-        x_origin, y_origin = None, None
-        xmin = 0
+        audio_file = "test.wav"
         last_share_state = False
         while True:
             pgui.click(x=10, y=100)
-            if x_origin is None:
-                screenshot = pgui.screenshot()
-                x_origin, y_origin = scale_matching(screenshot, self.info_icon_img_path)
-                xmin = min(0, x_origin - 30)
-            else:
-                screenshot = pgui.screenshot(region=(xmin, 0, 60, 400))
-                x, y = scale_matching(screenshot, self.info_icon_img_path)
-                print(x, y)
-                if abs(y - y_origin) > 10:
-                    print("発表者が画面共有中")
-                    last_share_state = True
-                else:
-                    if last_share_state is True:
-                        print("ここでアナウンス")
-                        self.share_audio()
-                        audio_file = "test.wav"
-                        os.system(audio_file)
-                        # break
-                        exit()
-                    print("発表者が画面共有中ではない")
+            screenshot = pgui.screenshot(region=(0, 0, 60, 100))
+            # ミーティング情報のアイコンが左上にある場合画面共有していない
+            x, y = scale_matching(screenshot, self.info_icon_img_path)
+            if x is None and y is None:
+                print("発表者が画面共有中")
+                last_share_state = True
+            else:  # 画面共有なしの場合
+                if last_share_state is True:
+                    print("発表者が画面共有終了")
+                    self.share_audio()
+                    os.system(audio_file)
+                    # break
+                    exit()
+                last_share_state = False
+                print("発表者が画面共有中ではない")
             time.sleep(1)
 
     def exit_meeting(self):
