@@ -114,7 +114,7 @@ class Zoom:
         while True:
             # region=(左上のx座標, 左上のy座標, xの長さ, yの長さ)
             joiners_ocr_img = pgui.screenshot(region=(xmin, ymin, 50, h))
-            save_path = "./joiners.png"
+            save_path = "./joiners_res.png"
             joiners_ocr_img.save(save_path)
             res = self.tesseract.ocr(save_path)
             print(f"tesseract read : {res}")
