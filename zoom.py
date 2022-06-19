@@ -84,8 +84,10 @@ class Zoom:
 
     def join_meeting(self):
         print("=== Join Meeting ===")
+        os.system("taskkill /im Zoom.exe /f")
+        time.sleep(1)
         os.system(f"start {self.zoom_path}")
-        time.sleep(3)
+        time.sleep(5)
         try:
             click_button(self.home_img_path)
         except Exception:
@@ -114,7 +116,7 @@ class Zoom:
         while True:
             # region=(左上のx座標, 左上のy座標, xの長さ, yの長さ)
             joiners_ocr_img = pgui.screenshot(region=(xmin, ymin, 50, h))
-            save_path = "./joiners.png"
+            save_path = "./joiners_res.png"
             joiners_ocr_img.save(save_path)
             res = self.tesseract.ocr(save_path)
             print(f"tesseract read : {res}")
@@ -183,7 +185,7 @@ def click_button(img_path):
     screenshot = pgui.screenshot()
     x, y = scale_matching(screenshot, img_path)
     if x is None or y is None:
-        print("Matching failed")
+        print("Matching failed", img_path)
         exit()
     pgui.doubleClick(x, y)
 
