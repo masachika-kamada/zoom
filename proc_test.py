@@ -1,25 +1,11 @@
 import subprocess
-import psutil
-
-# for proc in psutil.process_iter():
-#     print("----------------------")
-#     print("プロセスID:" + str(proc.pid))
-#     try:
-#         print("実行モジュール：" + proc.exe())
-#         print("コマンドライン:" + str(proc.cmdline()))
-#         print("カレントディレクトリ:" + proc.cwd())
-#     except psutil.AccessDenied:
-#         print("このプロセスへのアクセス権がありません。")
 
 
-# cmd = 'tasklist'
-# proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-
-# for line in proc.stdout:
-#   print(line.decode('utf-8'))
-
-
-cmd = ["ls"]
+cmd = ["tasklist"]
 proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
 result = proc.communicate()
-print(result)
+print(type(result))
+print(len(result))
+for res in result[0].splitlines():
+    if "Zoom.exe" in res.decode('utf-8'):
+        print(res)
