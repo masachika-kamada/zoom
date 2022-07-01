@@ -4,6 +4,7 @@ import pywinauto as pwa
 import sched
 import datetime
 import os
+import re
 import time
 from mycv import scale_matching
 from ocr import Tesseract
@@ -58,12 +59,13 @@ class Zoom:
                 hour=int(data["end_h"]),
                 minute=int(data["end_m"])
             )
-        self.set_moderator = False
-        if data[0]:
-            self.set_moderator = True
         self.record = False
-        if data[1]:
+        if data[0] is True:
             self.record = True
+        self.set_moderator = False
+        if data[1] is True:
+            self.set_moderator = True
+            self.name_list = re.split("[ 　]", data["name_list"])
 
     def start(self):
         s = sched.scheduler(time.time, time.sleep)
