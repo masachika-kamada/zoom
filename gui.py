@@ -22,6 +22,12 @@ class GUI:
              self.time_input_text_temp("end_h"), self.text_temp(":"),
              self.time_input_text_temp("end_m")],
         ]
+        options = [
+            [sg.Checkbox("ミーティングを録画する", font=self.font, default=False)],
+            [sg.Checkbox("モデレーター機能の有効化(発表順にひらがなで名前入力、スペース区切り)",
+             font=self.font, default=False)],
+            [sg.Multiline(font=self.font, size=(50, 2), key="name_list")]
+        ]
         layout_join = [
             [self.text_temp("URL")],
             [self.info_input_text_temp(size=(70, 1), key="url")],
@@ -33,12 +39,11 @@ class GUI:
             [sg.Multiline(font=self.font, size=(70, 5), key="link")]
         ]
         self.layout = [
-            [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 0)])],
+            [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 0)]),
+             sg.Frame("オプション", options, font=self.font, pad=[(10, 10), (10, 0)])],
             [sg.Frame("ミーティング情報", layout_join, font=self.font, pad=[(10, 10), (10, 0)])],
-            [sg.Checkbox("モデレーター機能を有効にする", font=self.font, default=False, pad=[(10, 10), (10, 10)])],
-            [sg.Checkbox("ミーティングを録画する", font=self.font, default=False, pad=[(10, 300), (10, 10)]),
-             sg.Button("終了", font=self.font),
-             sg.Button("実行", font=self.font)]
+            [sg.Button("終了", font=self.font, pad=((350, 10), (10, 10))),
+             sg.Button("実行", font=self.font, pad=((80, 10), (10, 10)))]
         ]
 
     def time_input_text_temp(self, key):
