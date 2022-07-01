@@ -1,5 +1,24 @@
+import pyautogui as pgui
+import pywinauto as pwa
 import cv2
 import numpy as np
+
+
+def record_command():
+    pwa.keyboard.send_keys("{VK_LWIN down}%r{VK_LWIN up}")
+
+
+def full_screen():
+    pwa.keyboard.send_keys("{VK_LWIN down}{VK_UP}{VK_LWIN up}")
+
+
+def click_button(img_path):
+    screenshot = pgui.screenshot()
+    x, y = scale_matching(screenshot, img_path)
+    if x is None or y is None:
+        print("Matching failed", img_path)
+        exit()
+    pgui.doubleClick(x, y)
 
 
 def scale_matching(img, template_path):
