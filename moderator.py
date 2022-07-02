@@ -21,6 +21,8 @@ class Moderator:
     def run(self):
         print("=== Moderator ===")
         last_share_state = False
+        # 自動ミュート
+        pgui.hotkey("alt", "a")
         while True:
             pgui.click(x=10, y=100)
             screenshot = pgui.screenshot(region=(0, 0, 60, 100))
@@ -39,7 +41,11 @@ class Moderator:
                     exit()
                 last_share_state = False
                 print("発表者が画面共有中ではない")
-            time.sleep(1)
+                # 画面共有をした際に全画面になることがあるのでescを押して対策
+                pgui.press("esc")
+            # 1秒ごとにマウス取られるのうざいからとりあえず5秒
+            # 最終的には戻そう
+            time.sleep(5)
 
     def share_audio(self):
         print("=== Share Audio ===")
