@@ -4,6 +4,7 @@ import sched
 import datetime
 import os
 import time
+from screeninfo import get_monitors
 from funcs import scale_matching, click_button, full_screen, record_command
 from moderator import Moderator
 from ocr import Tesseract
@@ -60,7 +61,11 @@ class Zoom:
         self.set_moderator = False
         if data[1] is True:
             self.set_moderator = True
-            self.moderator = Moderator(data["name_list"])
+            self.moderator = Moderator(data["name_list"], self.scale)
+        for m in get_monitors():
+            if m.is_primary:
+                self.scale = m.width / 1920  # FullHDとの比率
+                break
 
     def start(self):
         s = sched.scheduler(time.time, time.sleep)
@@ -85,12 +90,9 @@ class Zoom:
         time.sleep(1)
         os.system(f"start {self.zoom_path}")
         time.sleep(5)
-        try:
-            click_button(self.home_img_path)
-        except Exception:
-            pass
-        time.sleep(2)
-        click_button(self.join_img_path)
+        click_button(self.home_img_path, self.scale, fail_exit=False)
+        time.sleep(0.5)
+        click_button(self.join_img_path, self.scale)
         time.sleep(2)
         pgui.typewrite(self.ID + "\n")
         time.sleep(2)
@@ -101,12 +103,12 @@ class Zoom:
     def display_joiners_tab(self):
         print("=== Display Number of Joiners ===")
         pgui.click(x=10, y=100)
-        click_button(self.joiners_img_path)
+        click_button(self.joiners_img_path, self.scale)
 
     # TODO: Zoomミーティングが続いているかどうかも監視する
     def watch_joiners(self):
         screenshot = pgui.screenshot()
-        x, y = scale_matching(screenshot, self.n_joiners_img_path)
+        x, y = scale_matching(screenshot, self.n_joiners_img_path, self.scale)
         h, w = cv2.imread(self.n_joiners_img_path).shape[:2]
         xmin = x + int(w / 2)
         ymin = y - int(h / 2)
@@ -130,9 +132,9 @@ class Zoom:
         print("=== Exit Meeting ===")
         pgui.click(x=10, y=100)
         try:
-            click_button(self.exit_img_path)
+            click_button(self.exit_img_path, self.scale)
             time.sleep(1)
-            click_button(self.exit2_img_path)
+            click_button(self.exit2_img_path, self.scale)
         except Exception:
             pass
         return

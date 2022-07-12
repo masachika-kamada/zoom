@@ -14,9 +14,10 @@ class Moderator:
     info_icon_img_path = "./imgs/info_icon.png"
     audio_file = "zoomoderator.wav"
 
-    def __init__(self, data):
+    def __init__(self, data, scale):
         self.name_list = re.split("[ 　]", data)
         self.presentation_count = 0
+        self.scale = scale
 
     def run(self):
         print("=== Moderator ===")
@@ -45,11 +46,11 @@ class Moderator:
         print("=== Share Audio ===")
         # pgui.click(x=10, y=100)
         # time.sleep(0.2)
-        click_button(self.screen_share_img_path)
+        click_button(self.screen_share_img_path, self.scale)
         time.sleep(0.5)
-        click_button(self.choice_app_img_path)
+        click_button(self.choice_app_img_path, self.scale)
         time.sleep(0.5)
-        click_button(self.computer_audio_img_path)
+        click_button(self.computer_audio_img_path, self.scale)
 
     def generate_audio_file(self):
         # 発表者をアナウンスする直前に呼び出して、音声ファイルを生成する
