@@ -12,22 +12,25 @@ def full_screen():
     pwa.keyboard.send_keys("{VK_LWIN down}{VK_UP}{VK_LWIN up}")
 
 
-def click_button(img_path):
+def click_button(img_path, scale, fail_exit=True):
     screenshot = pgui.screenshot()
-    x, y = scale_matching(screenshot, img_path)
+    x, y = scale_matching(screenshot, img_path, scale)
     if x is None or y is None:
         print("Matching failed", img_path)
-        exit()
-    pgui.doubleClick(x, y)
+        if fail_exit:
+            exit()
+    else:
+        pgui.doubleClick(x, y)
 
 
-def scale_matching(img, template_path):
+def scale_matching(img, template_path, scale, matching_threshold=0.7):
     """スケール対応
     feature_matchingよりも精度が良い
 
     Args:
         img (PIL.Image.Image): スクリーンショット
         template_path (path): テンプレート画像のパス
+        matching_threshold (float): 信頼度の閾値
 
     Returns:
         point (int, int): 特徴点が一致した座標
@@ -36,7 +39,7 @@ def scale_matching(img, template_path):
     img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     template = cv2.imread(template_path, cv2.IMREAD_GRAYSCALE)
 
-    scales = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4]
+    scales = scale + np.arange(-0.2, 0.3, 0.1)  # -0.2 ~ +0.2
     max_matching_value = 0
     max_matching_point = None
     max_matching_scale = None
@@ -51,7 +54,6 @@ def scale_matching(img, template_path):
             max_matching_point = max_loc
             max_matching_scale = scale
 
-    matching_threshold = 0.7
     if max_matching_value < matching_threshold:
         print(max_matching_value)
         return None, None
@@ -68,19 +70,17 @@ def pil2cv(img):
 
 
 if __name__ == "__main__":
-    img_paths = ["./imgs/screen.png", "./imgs/screen.png", "./imgs/screen_meeting.png", "./imgs/screen_meeting.png", "./imgs/screen_exit.png"]
-    template_paths = ["./imgs/join.png", "./imgs/home.png", "./imgs/exit.png", "./imgs/joiners.png", "./imgs/exit2.png"]
+    from PIL import Image
+    img_path = "./test_img/img3.png"
+    template_path = "./imgs/join.png"
 
     cv2.namedWindow("img", cv2.WINDOW_NORMAL)
-
-    scales = [0.75, 0.86, 0.93, 1.05, 1.18, 1.23]
-    for img_path, template_path in zip(img_paths, template_paths):
-        img = cv2.imread(img_path)
-        template = cv2.imread(template_path)
-        for scale in scales:
-            img_resize = cv2.resize(img, (0, 0), fx=scale, fy=scale)
-            x, y = scale_matching(img_resize, template)
-            cv2.drawMarker(img_resize, (x, y), (0, 0, 255), cv2.MARKER_CROSS, 10, 2)
-            cv2.imshow("img", img_resize)
-            cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+    img = Image.open(img_path)
+    x, y = scale_matching(img, template_path, 1800 / 1080)
+    img = pil2cv(img)
+    print(x, y)
+    if x is not None:
+        cv2.drawMarker(img, (x, y), (0, 0, 255), cv2.MARKER_CROSS, 30, 10)
+    img = cv2.resize(img, (1920, 1080))
+    cv2.imshow("img", img)
+    cv2.waitKey(0)
