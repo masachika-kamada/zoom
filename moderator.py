@@ -26,7 +26,7 @@ class Moderator:
             pgui.click(x=10, y=100)
             screenshot = pgui.screenshot(region=(0, 0, 60, 100))
             # ミーティング情報のアイコンが左上にある場合画面共有していない
-            x, y = scale_matching(screenshot, self.info_icon_img_path)
+            x, y = scale_matching(screenshot, self.info_icon_img_path, self.scale)
             if x is None and y is None:
                 print("発表者が画面共有中")
                 last_share_state = True

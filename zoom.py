@@ -8,6 +8,7 @@ from screeninfo import get_monitors
 from funcs import scale_matching, click_button, full_screen, record_command
 from moderator import Moderator
 from ocr import Tesseract
+from concurrent.futures import ThreadPoolExecutor
 
 
 class Zoom:
@@ -46,6 +47,7 @@ class Zoom:
             )
         if data["end_M"] == "":
             self.auto_exit = True
+            self.tesseract = Tesseract()
         else:
             self.auto_exit = False
             self.end_time = datetime.datetime(
@@ -55,17 +57,18 @@ class Zoom:
                 hour=int(data["end_h"]),
                 minute=int(data["end_m"])
             )
-        self.record = False
-        if data[0] is True:
-            self.record = True
-        self.set_moderator = False
-        if data[1] is True:
-            self.set_moderator = True
-            self.moderator = Moderator(data["name_list"], self.scale)
         for m in get_monitors():
             if m.is_primary:
                 self.scale = m.width / 1920  # FullHDとの比率
                 break
+        self.record = False
+        if data[0] is True:
+            self.record = True
+        self.set_moderator = False
+        self.run_flag = True
+        if data[1] is True:
+            self.set_moderator = True
+            self.moderator = Moderator(data["name_list"], self.scale)
 
     def start(self):
         s = sched.scheduler(time.time, time.sleep)
@@ -75,14 +78,36 @@ class Zoom:
         s.enter((self.start_time - now).total_seconds() - 20, 1, self.display_joiners_tab)
         if self.record:
             s.enter((self.start_time - now).total_seconds(), 1, record_command)
-        if self.auto_exit is False:
-            s.enter((self.end_time - now).total_seconds(), 1, self.exit_meeting)
-        else:
-            self.tesseract = Tesseract()
-            s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+        # moderatorが設定されている場合はマルチスレッド
         if self.set_moderator is True:
-            s.enter((self.start_time - now).total_seconds(), 1, self.moderator.run)
+            if self.auto_exit is True:
+                s.enter((self.start_time - now).total_seconds(), 1, self.moderator_auto_exit)
+            else:
+                s.enter((self.end_time - now).total_seconds(), 1, self.moderator_time_exit)
+        # moderatorがない場合は単純な設定
+        else:
+            if self.auto_exit is True:
+                s.enter((self.start_time - now).total_seconds() + 5, 1, self.watch_joiners)
+            else:
+                s.enter((self.end_time - now).total_seconds(), 1, self.exit_meeting)
         s.run()
+
+    def moderator_auto_exit(self):
+        executor = ThreadPoolExecutor(max_workers=2)
+        executor.submit(self.moderator.run)
+        executor.submit(self.watch_joiners)
+        executor.shutdown()
+
+    def moderator_time_exit(self):
+        def time_exit():
+            now = datetime.datetime.now()
+            time.sleep(self.end_time - now)
+            self.exit_meeting()
+
+        executor = ThreadPoolExecutor(max_workers=2)
+        executor.submit(self.moderator.run)
+        executor.submit(time_exit)
+        executor.shutdown()
 
     def join_meeting(self):
         print("=== Join Meeting ===")
