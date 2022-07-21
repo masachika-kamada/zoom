@@ -18,11 +18,12 @@ class Moderator:
         self.name_list = re.split("[ 　]", data)
         self.presentation_count = 0
         self.scale = scale
+        self.run_flag = True
 
     def run(self):
         print("=== Moderator ===")
         last_share_state = False
-        while True:
+        while self.run_flag:
             pgui.click(x=10, y=100)
             screenshot = pgui.screenshot(region=(0, 0, 60, 100))
             # ミーティング情報のアイコンが左上にある場合画面共有していない

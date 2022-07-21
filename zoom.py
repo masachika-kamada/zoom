@@ -83,7 +83,7 @@ class Zoom:
             if self.auto_exit is True:
                 s.enter((self.start_time - now).total_seconds(), 1, self.moderator_auto_exit)
             else:
-                s.enter((self.end_time - now).total_seconds(), 1, self.moderator_time_exit)
+                s.enter((self.start_time - now).total_seconds(), 1, self.moderator_time_exit)
         # moderatorがない場合は単純な設定
         else:
             if self.auto_exit is True:
@@ -93,21 +93,25 @@ class Zoom:
         s.run()
 
     def moderator_auto_exit(self):
+        print("=== Moderator Auto Exit ===")
         executor = ThreadPoolExecutor(max_workers=2)
         executor.submit(self.moderator.run)
         executor.submit(self.watch_joiners)
         executor.shutdown()
 
     def moderator_time_exit(self):
-        def time_exit():
-            now = datetime.datetime.now()
-            time.sleep(self.end_time - now)
-            self.exit_meeting()
-
+        print("=== Moderator Time Exit ===")
         executor = ThreadPoolExecutor(max_workers=2)
         executor.submit(self.moderator.run)
-        executor.submit(time_exit)
+        executor.submit(self.exit_timer)
         executor.shutdown()
+        self.exit_meeting()
+
+    def exit_timer(self):
+        while self.moderator.run_flag:
+            time.sleep(1)
+            if datetime.datetime.now() > self.end_time:
+                self.moderator.run_flag = False
 
     def join_meeting(self):
         print("=== Join Meeting ===")
@@ -147,6 +151,8 @@ class Zoom:
             print(f"tesseract read : {res}")
             # if max_joiners / 2 >= res:
             if res is None or max_joiners - 1 >= res:
+                if self.set_moderator is True:
+                    self.moderator.run_flag = False
                 self.exit_meeting()
                 break
             elif max_joiners < res:
