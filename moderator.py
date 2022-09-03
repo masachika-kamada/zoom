@@ -1,7 +1,7 @@
 import pyautogui as pgui
 from gtts import gTTS
 import time
-# import os
+import os
 import playsound
 import re
 from funcs import click_button, scale_matching
@@ -14,6 +14,7 @@ class Moderator:
     info_icon_img_path = "./imgs/info_icon.png"
     audio_file = "zoomoderator.mp3"
     share_img_path = "./imgs/share.png"
+    stop_sharing_img_path = "./imgs/stop_sharing.png"
 
     def __init__(self, data, scale):
         self.name_list = re.split("[ 　]", data)
@@ -37,6 +38,7 @@ class Moderator:
                     print("発表者が画面共有終了")
                     self.share_audio()
                     playsound.playsound(self.audio_file)
+                    click_button(self.stop_sharing_img_path, self.scale)
                 last_share_state = False
                 print("発表者が画面共有中ではない")
             time.sleep(1)
@@ -56,6 +58,8 @@ class Moderator:
             click_button(self.share_img_path, self.scale)
 
     def generate_audio_file(self):
+        if os.path.exists(self.audio_file):
+            os.remove(self.audio_file)
         # 発表者をアナウンスする直前に呼び出して、音声ファイルを生成する
         print("=== Generate Audio File ===")
         if self.presentation_count == 0:
