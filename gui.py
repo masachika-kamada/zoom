@@ -33,8 +33,8 @@ class GUI:
             [self.info_input_text_temp(size=(70, 1), key="url")],
             [self.text_temp("ID")],
             [self.info_input_text_temp(size=(35, 1), key="id")],
-            [self.text_temp("パスワード")],
-            [self.info_input_text_temp(size=(35, 1), key="password")],
+            [self.text_temp("パスコード")],
+            [self.info_input_text_temp(size=(35, 1), key="passcode")],
             [self.text_temp("招待リンクから参加する")],
             [sg.Multiline(font=self.font, size=(70, 5), key="link")]
         ]

@@ -24,17 +24,25 @@ class Zoom:
     exit2_img_path = "./imgs/exit2.png"
 
     def __init__(self, data):
-        if data["link"] is not None:
+        if len(data["link"]) > 0:
             for item in data["link"].split("\n"):
                 if "https" in item:
                     data["url"] = item
-        if data["url"] is not None:
-            info = data["url"].split("?pwd=")
-            self.ID = info[0].split("/")[-1]
-            self.PASSWORD = info[-1]
-        else:
+                elif "ミーティングID" in item:
+                    self.ID = item.split(": ")[-1].replace(" ", "")
+                elif "パスコード" in item:
+                    self.PASSCODE = item.split(": ")[-1]
+        if len(data["url"]) > 0:
+            if "?pwd=" in data["url"]:
+                info = data["url"].split("?pwd=")
+                self.ID = info[0].split("/")[-1]
+                self.PASSCODE = info[-1]
+            else:
+                self.ID = data["url"].split("/")[-1]
+        if len(data["id"]) > 0:
             self.ID = data["id"].replace(" ", "")
-            self.PASSWORD = data["password"]
+        if len(data["passcode"]) > 0:
+            self.PASSCODE = data["passcode"]
         if data["start_M"] == "":
             self.start_time = datetime.datetime.now()
         else:
@@ -125,7 +133,7 @@ class Zoom:
         time.sleep(2)
         pgui.typewrite(self.ID + "\n")
         time.sleep(2)
-        pgui.typewrite(self.PASSWORD + "\n")
+        pgui.typewrite(self.PASSCODE + "\n")
         time.sleep(10)
         full_screen()
 
