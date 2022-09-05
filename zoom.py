@@ -12,12 +12,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class Zoom:
-    # zoomのpathを設定できるようにする必要がある
-    # simple guiの方でフォルダを参照して検索できるようにできるとよい
-    with open("./zoom_path.txt", "r") as f:
-        zoom_path = f.read()
-    home_img_path = "./imgs/home.png"
-    join_img_path = "./imgs/join.png"
     joiners_img_path = "./imgs/joiners.png"
     n_joiners_img_path = "./imgs/n_joiners.png"
     exit_img_path = "./imgs/exit.png"
