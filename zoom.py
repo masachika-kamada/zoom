@@ -79,7 +79,7 @@ class Zoom:
         s.enter((self.start_time - now).total_seconds() - 60, 1, self.join_meeting)
         s.enter((self.start_time - now).total_seconds() - 20, 1, self.display_joiners_tab)
         if self.record:
-            s.enter((self.start_time - now).total_seconds(), 1, record_command)
+            s.enter((self.start_time - now).total_seconds() - 1, 1, record_command)
         # moderatorが設定されている場合はマルチスレッド
         if self.set_moderator is True:
             if self.auto_exit is True:

@@ -15,7 +15,6 @@ class GUI:
              self.time_input_text_temp("start_h"), self.text_temp(":"),
              self.time_input_text_temp("start_m")],
             [self.text_temp("退室時間")],
-            # 退室条件を選択できるようにする: 時間 or 人数
             [self.time_input_text_temp("end_M"), self.text_temp("/"),
              self.time_input_text_temp("end_d"), self.text_temp(" "),
              self.time_input_text_temp("end_h"), self.text_temp(":"),
@@ -66,7 +65,7 @@ class GUI:
         )
 
     def display(self):
-        window = sg.Window("Zoom自動入退室ツール", self.layout)
+        window = sg.Window("ZooModerator", self.layout)
         while True:
             event, values = window.read()
             if event == "  実行  ":
@@ -80,7 +79,5 @@ class GUI:
 
 
 if __name__ == "__main__":
-    # themeの一覧
-    # sg.theme_previewer()
     gui = GUI()
     gui.display()
