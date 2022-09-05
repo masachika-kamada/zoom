@@ -5,7 +5,6 @@ from zoom import Zoom
 
 class GUI:
     font = ('Meiryo UI', 15)
-    input_text_size = (2, 1)
 
     def __init__(self):
         sg.theme("DarkRed2")
@@ -42,8 +41,7 @@ class GUI:
             [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 0)]),
              sg.Frame("オプション", options, font=self.font, pad=[(10, 10), (10, 0)])],
             [sg.Frame("ミーティング情報", layout_join, font=self.font, pad=[(10, 10), (10, 0)])],
-            [sg.Button("終了", font=self.font, pad=((350, 10), (10, 10))),
-             sg.Button("実行", font=self.font, pad=((80, 10), (10, 10)))]
+            [sg.Button("  実行  ", font=self.font, pad=((750, 10), (10, 10)))]
         ]
 
     def time_input_text_temp(self, key):
@@ -71,11 +69,12 @@ class GUI:
         window = sg.Window("Zoom自動入退室ツール", self.layout)
         while True:
             event, values = window.read()
-            if event == "実行":
+            if event == "  実行  ":
+                window.close()
                 zoom = Zoom(values)
                 zoom.start()
 
-            elif (event is None) or (event == "終了"):
+            elif event == sg.WIN_CLOSED:
                 window.close()
                 sys.exit()
 
