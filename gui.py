@@ -5,7 +5,6 @@ from zoom import Zoom
 
 class GUI:
     font = ('Meiryo UI', 15)
-    input_text_size = (2, 1)
 
     def __init__(self):
         sg.theme("DarkRed2")
@@ -16,7 +15,6 @@ class GUI:
              self.time_input_text_temp("start_h"), self.text_temp(":"),
              self.time_input_text_temp("start_m")],
             [self.text_temp("退室時間")],
-            # 退室条件を選択できるようにする: 時間 or 人数
             [self.time_input_text_temp("end_M"), self.text_temp("/"),
              self.time_input_text_temp("end_d"), self.text_temp(" "),
              self.time_input_text_temp("end_h"), self.text_temp(":"),
@@ -33,8 +31,8 @@ class GUI:
             [self.info_input_text_temp(size=(70, 1), key="url")],
             [self.text_temp("ID")],
             [self.info_input_text_temp(size=(35, 1), key="id")],
-            [self.text_temp("パスワード")],
-            [self.info_input_text_temp(size=(35, 1), key="password")],
+            [self.text_temp("パスコード")],
+            [self.info_input_text_temp(size=(35, 1), key="passcode")],
             [self.text_temp("招待リンクから参加する")],
             [sg.Multiline(font=self.font, size=(70, 5), key="link")]
         ]
@@ -42,8 +40,7 @@ class GUI:
             [sg.Frame("ミーティング時刻", layout_date, font=self.font, pad=[(10, 10), (10, 0)]),
              sg.Frame("オプション", options, font=self.font, pad=[(10, 10), (10, 0)])],
             [sg.Frame("ミーティング情報", layout_join, font=self.font, pad=[(10, 10), (10, 0)])],
-            [sg.Button("終了", font=self.font, pad=((350, 10), (10, 10))),
-             sg.Button("実行", font=self.font, pad=((80, 10), (10, 10)))]
+            [sg.Button("  実行  ", font=self.font, pad=((750, 10), (10, 10)))]
         ]
 
     def time_input_text_temp(self, key):
@@ -68,20 +65,19 @@ class GUI:
         )
 
     def display(self):
-        window = sg.Window("Zoom自動入退室ツール", self.layout)
+        window = sg.Window("ZooModerator", self.layout)
         while True:
             event, values = window.read()
-            if event == "実行":
+            if event == "  実行  ":
+                window.close()
                 zoom = Zoom(values)
                 zoom.start()
 
-            elif (event is None) or (event == "終了"):
+            elif event == sg.WIN_CLOSED:
                 window.close()
                 sys.exit()
 
 
 if __name__ == "__main__":
-    # themeの一覧
-    # sg.theme_previewer()
     gui = GUI()
     gui.display()

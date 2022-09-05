@@ -12,29 +12,31 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class Zoom:
-    # zoomのpathを設定できるようにする必要がある
-    # simple guiの方でフォルダを参照して検索できるようにできるとよい
-    with open("./zoom_path.txt", "r") as f:
-        zoom_path = f.read()
-    home_img_path = "./imgs/home.png"
-    join_img_path = "./imgs/join.png"
     joiners_img_path = "./imgs/joiners.png"
     n_joiners_img_path = "./imgs/n_joiners.png"
     exit_img_path = "./imgs/exit.png"
     exit2_img_path = "./imgs/exit2.png"
 
     def __init__(self, data):
-        if data["link"] is not None:
+        if len(data["link"]) > 0:
             for item in data["link"].split("\n"):
                 if "https" in item:
                     data["url"] = item
-        if data["url"] is not None:
-            info = data["url"].split("?pwd=")
-            self.ID = info[0].split("/")[-1]
-            self.PASSWORD = info[-1]
-        else:
+                elif "ミーティングID" in item:
+                    self.ID = item.split(": ")[-1].replace(" ", "")
+                elif "パスコード" in item:
+                    self.PASSCODE = item.split(": ")[-1]
+        if len(data["url"]) > 0:
+            if "?pwd=" in data["url"]:
+                info = data["url"].split("?pwd=")
+                self.ID = info[0].split("/")[-1]
+                self.PASSCODE = info[-1]
+            else:
+                self.ID = data["url"].split("/")[-1]
+        if len(data["id"]) > 0:
             self.ID = data["id"].replace(" ", "")
-            self.PASSWORD = data["password"]
+        if len(data["passcode"]) > 0:
+            self.PASSCODE = data["passcode"]
         if data["start_M"] == "":
             self.start_time = datetime.datetime.now()
         else:
@@ -77,7 +79,7 @@ class Zoom:
         s.enter((self.start_time - now).total_seconds() - 60, 1, self.join_meeting)
         s.enter((self.start_time - now).total_seconds() - 20, 1, self.display_joiners_tab)
         if self.record:
-            s.enter((self.start_time - now).total_seconds(), 1, record_command)
+            s.enter((self.start_time - now).total_seconds() - 1, 1, record_command)
         # moderatorが設定されている場合はマルチスレッド
         if self.set_moderator is True:
             if self.auto_exit is True:
@@ -115,17 +117,7 @@ class Zoom:
 
     def join_meeting(self):
         print("=== Join Meeting ===")
-        os.system("taskkill /im Zoom.exe /f")
-        time.sleep(1)
-        os.system(f"start {self.zoom_path}")
-        time.sleep(5)
-        click_button(self.home_img_path, self.scale, fail_exit=False)
-        time.sleep(0.5)
-        click_button(self.join_img_path, self.scale)
-        time.sleep(2)
-        pgui.typewrite(self.ID + "\n")
-        time.sleep(2)
-        pgui.typewrite(self.PASSWORD + "\n")
+        os.system(f"start zoommtg:\"//zoom.us/join?action=join&confno={self.ID}&pwd={self.PASSCODE}\"")
         time.sleep(10)
         full_screen()
 
