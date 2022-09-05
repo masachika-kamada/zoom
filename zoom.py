@@ -123,17 +123,7 @@ class Zoom:
 
     def join_meeting(self):
         print("=== Join Meeting ===")
-        os.system("taskkill /im Zoom.exe /f")
-        time.sleep(1)
-        os.system(f"start {self.zoom_path}")
-        time.sleep(5)
-        click_button(self.home_img_path, self.scale, fail_exit=False)
-        time.sleep(0.5)
-        click_button(self.join_img_path, self.scale)
-        time.sleep(2)
-        pgui.typewrite(self.ID + "\n")
-        time.sleep(2)
-        pgui.typewrite(self.PASSCODE + "\n")
+        os.system(f"start zoommtg:\"//zoom.us/join?action=join&confno={self.ID}&pwd={self.PASSCODE}\"")
         time.sleep(10)
         full_screen()
 
