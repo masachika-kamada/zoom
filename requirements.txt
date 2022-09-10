@@ -1,0 +1,8 @@
+PySimpleGUI==4.59.0
+opencv-contrib-python==4.5.1.48
+opencv-python==4.5.1.48
+PyAutoGUI==0.9.53
+pywinauto==0.6.8
+pyocr==0.7.2
+Pillow==9.1.1
+numpy

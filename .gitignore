@@ -1,4 +1,9 @@
 .vscode/
-*.png
+*.mp4
+*.mp3
+*.wav
 __pycache__/
 sample/
+joiners_res.png
+zoom_path.txt
+test*
