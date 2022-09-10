@@ -24,6 +24,11 @@ class Moderator:
 
     def run(self):
         print("=== Moderator ===")
+        # 一人目の案内
+        self.share_audio()
+        playsound.playsound(self.audio_file)
+        click_button(self.stop_sharing_img_path, self.scale)
+        # 二人目以降の案内
         last_share_state = False
         while self.run_flag:
             pgui.click(x=10, y=100)
@@ -65,8 +70,8 @@ class Moderator:
         if self.presentation_count == 0:
             text = f"最初の発表者は{self.name_list[0]}さんです。宜しくお願いします。"
         else:
-            text = f"{self.name_list[self.presentation_count - 1]}さんありがとうございました。\
-                      次の発表者は{self.name_list[self.presentation_count]}さんです。宜しくお願いします。"
+            text = f"{self.name_list[self.presentation_count - 1]}さん、ありがとうございました。\
+                      次の発表者は、{self.name_list[self.presentation_count]}さんです。宜しくお願いします。"
         tts = gTTS(text=text, lang="ja", slow=False)
         tts.save(self.audio_file)
         self.presentation_count += 1

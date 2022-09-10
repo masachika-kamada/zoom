@@ -126,7 +126,6 @@ class Zoom:
         pgui.click(x=10, y=100)
         click_button(self.joiners_img_path, self.scale)
 
-    # TODO: Zoomミーティングが続いているかどうかも監視する
     def watch_joiners(self):
         screenshot = pgui.screenshot()
         x, y = scale_matching(screenshot, self.n_joiners_img_path, self.scale)
@@ -141,8 +140,7 @@ class Zoom:
             joiners_ocr_img.save(save_path)
             res = self.tesseract.ocr(save_path)
             print(f"tesseract read : {res}")
-            # if max_joiners / 2 >= res:
-            if res is None or max_joiners - 1 >= res:
+            if max_joiners / 2 >= res:
                 if self.set_moderator is True:
                     self.moderator.run_flag = False
                 self.exit_meeting()

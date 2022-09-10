@@ -4,7 +4,7 @@ from zoom import Zoom
 
 
 class GUI:
-    font = ('Meiryo UI', 15)
+    font = ("Meiryo UI", 15)
 
     def __init__(self):
         sg.theme("DarkRed2")
@@ -46,7 +46,7 @@ class GUI:
     def time_input_text_temp(self, key):
         return sg.InputText(
             size=(2, 1),
-            justification='right',
+            justification="right",
             font=self.font,
             key=key
         )

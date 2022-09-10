@@ -7,7 +7,7 @@ import cv2
 
 class Tesseract:
     def __init__(self):
-        pyocr.tesseract.TESSERACT_CMD = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+        pyocr.tesseract.TESSERACT_CMD = "C:/Program Files/Tesseract-OCR/tesseract.exe"
         self.tool = pyocr.get_available_tools()[0]
 
     def ocr(self, img_path):
