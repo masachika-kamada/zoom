@@ -7,3 +7,6 @@ sample/
 joiners_res.png
 zoom_path.txt
 test*
+*.spec
+build*/
+dist*/

@@ -1,0 +1,2 @@
+pyinstaller gui.py --onedir --noconsole --clean --name zoomoderator --icon=icon.ico
+imgsフォルダをdistフォルダにコピー
